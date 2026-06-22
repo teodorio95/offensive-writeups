@@ -1,0 +1,5 @@
+.DS_Store
+*.tmp
+# raw capture/scan artifacts — keep curated evidence in writeups/assets/ instead
+nmap-*.txt
+*.pcap
