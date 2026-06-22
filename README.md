@@ -37,8 +37,10 @@ matters for a DevSecOps role:
 ## Lab setup
 
 - **Attacker:** Kali Linux (Parallels VM) — nmap, Burp Suite, sqlmap, etc.
-- **Target:** OWASP Juice Shop in the k3d cluster (`make juice-ui` exposes it on
-  `http://localhost:3000`; reachable from Kali over the host network).
+- **Target:** OWASP Juice Shop in the k3d cluster. It's exposed persistently via
+  the cluster's Traefik ingress at **`http://localhost:8081`** (reachable from
+  Kali over the host network); `make juice-ui` on `:3000` is an ad-hoc
+  alternative.
 - All tooling is pre-installed on Kali.
 
 ## Writeups
