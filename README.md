@@ -36,12 +36,30 @@ matters for a DevSecOps role:
 
 ## Lab setup
 
-- **Attacker:** Kali Linux (Parallels VM) — nmap, Burp Suite, sqlmap, etc.
-- **Target:** OWASP Juice Shop in the k3d cluster. It's exposed persistently via
-  the cluster's Traefik ingress at **`http://localhost:8081`** (reachable from
-  Kali over the host network); `make juice-ui` on `:3000` is an ad-hoc
-  alternative.
+- **Attacker:** Kali Linux (Parallels VM) — nmap, Burp Suite, sqlmap, hydra, ffuf.
+- **Target:** OWASP Juice Shop, reachable from Kali at **`http://<mac-ip>:8081`**
+  (the lab's Traefik ingress, bound to all interfaces). Find the Mac IP with
+  `ipconfig getifaddr en0`; confirm from Kali with `curl -I http://<mac-ip>:8081`.
 - All tooling is pre-installed on Kali.
+
+## Run the attacks
+
+[`attack.sh`](attack.sh) launches several attack types in sequence (recon, content
+discovery, SQLi auth-bypass, XSS, broken access control, optional brute force):
+
+```bash
+TARGET=http://<mac-ip>:8081 ./attack.sh            # core phases
+TARGET=http://<mac-ip>:8081 ./attack.sh --brute    # + credential brute force
+```
+
+Capture the output per [EVIDENCE.md](EVIDENCE.md) into `writeups/assets/`.
+
+## How we defend against each attack
+
+[**defenses.md**](defenses.md) is the payoff: every attack mapped to its code-level
+fix **and** the automated control elsewhere in the portfolio that catches or
+prevents it (CI gate #2, network policy + admission #1, supply chain #3, runtime
+detection #5) — plus the defense-in-depth layering.
 
 ## Writeups
 
@@ -50,4 +68,6 @@ matters for a DevSecOps role:
 | [01](writeups/01-recon-nmap.md) | Recon & service discovery | Reconnaissance | nmap |
 | [02](writeups/02-sqli-login-bypass.md) | SQL injection — login bypass | A03 Injection | Burp, sqlmap |
 
-See [TEMPLATE.md](TEMPLATE.md) for the structure each writeup follows.
+`attack.sh` + [defenses.md](defenses.md) also cover XSS (A03), broken access
+control (A01), and brute force (A07); each can grow into its own full writeup as
+evidence is captured. See [TEMPLATE.md](TEMPLATE.md) for the structure.
