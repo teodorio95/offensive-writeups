@@ -13,8 +13,13 @@
 
 set -uo pipefail
 TARGET="${TARGET:-http://192.168.0.200:8088}"
-HOST="$(printf '%s' "$TARGET" | sed -E 's#https?://##; s#[:/].*##')"
-PORT="$(printf '%s' "$TARGET" | sed -E 's#.*:([0-9]+).*#\1#; t; s#.*#80#')"
+# portable host/port parse (pure bash — BSD sed on macOS chokes on `t;` labels)
+_rest="${TARGET#*://}"; _hostport="${_rest%%/*}"
+HOST="${_hostport%%:*}"
+case "$_hostport" in
+  *:*) PORT="${_hostport##*:}" ;;
+  *)   case "$TARGET" in https://*) PORT=443 ;; *) PORT=80 ;; esac ;;
+esac
 
 WORDLIST=""; RUN_BRUTE=0
 while [ $# -gt 0 ]; do case "$1" in
@@ -47,7 +52,10 @@ DISCOVERED=""
 if have ffuf && [ -n "$WORDLIST" ]; then
   echo "   wordlist: $WORDLIST"
   # -mc: show 200/301/302/403; -s: quiet (just the hits)
-  DISCOVERED="$(ffuf -u "$TARGET/FUZZ" -w "$WORDLIST" -mc 200,301,302,403 -s 2>/dev/null)"
+  # -ac: auto-calibrate — SPAs (Juice Shop) return 200 + the same index.html for
+  #      ANY path; without this every word is a false positive. -ac learns that
+  #      baseline and filters it, leaving only genuinely different responses.
+  DISCOVERED="$(ffuf -u "$TARGET/FUZZ" -w "$WORDLIST" -ac -mc 200,301,302,403 -s 2>/dev/null)"
   printf '%s\n' "$DISCOVERED" | sed 's/^/   \/ /' | head -25
 else
   note "ffuf or wordlist missing — falling back to a tiny built-in probe"
