@@ -36,11 +36,41 @@ matters for a DevSecOps role:
 
 ## Lab setup
 
-- **Attacker:** Kali Linux (Parallels VM) — nmap, Burp Suite, sqlmap, hydra, ffuf.
-- **Target:** OWASP Juice Shop, reachable from Kali at **`http://<mac-ip>:8081`**
-  (the lab's Traefik ingress, bound to all interfaces). Find the Mac IP with
-  `ipconfig getifaddr en0`; confirm from Kali with `curl -I http://<mac-ip>:8081`.
-- All tooling is pre-installed on Kali.
+The **target** is always OWASP Juice Shop from [secure-k8s-lab](../secure-k8s-lab)
+(`make up`), exposed by the lab's Traefik ingress on the host. Pick either
+attacker setup:
+
+### Option A — tooling local on the Mac (recommended, no VM)
+
+The simplest path: run the CLI tools natively, target `localhost`. No Kali, no
+Parallels, no networking between VMs.
+
+```bash
+brew install nmap ffuf sqlmap hydra          # jq/curl/git usually already present
+git clone --depth 1 https://github.com/danielmiessler/SecLists.git ~/tools/SecLists
+```
+
+- **Target:** `http://localhost:8081` (the ingress port; confirm with
+  `curl -I http://localhost:8081`).
+- **Wordlist:** `~/tools/SecLists/Discovery/Web-Content/common.txt` — pass it with
+  `--wordlist` (the Kali default path `/usr/share/wordlists/...` doesn't exist on
+  macOS; optionally `sudo ln -s` it there once).
+
+`attack.sh` is portable (pure-bash host/port parse, ffuf `-ac` to filter the
+Juice Shop SPA's catch-all 200s), so it runs the same on macOS and Linux.
+
+### Option B — Kali Linux (Parallels VM)
+
+If you specifically want the offensive distro (Burp Suite, Metasploit, etc.):
+
+- **Attacker:** Kali — nmap, Burp Suite, sqlmap, hydra, ffuf pre-installed.
+- **Target:** `http://<mac-ip>:8081` (the ingress is bound to all interfaces).
+  Find the Mac IP with `ipconfig getifaddr en0`; confirm from Kali with
+  `curl -I http://<mac-ip>:8081`.
+
+> Note: Burp Suite's official installer is x86_64; on Apple-Silicon Kali you need
+> an arm64 JRE 21 to launch it. Option A sidesteps this entirely for the
+> CLI-driven attacks here.
 
 ## Run the attacks
 
@@ -50,8 +80,13 @@ hard-code the answers). Phases: recon → content discovery (ffuf) → enumerate
 browsable dirs → fuzz 403 bypasses → injection by anomaly → optional brute force.
 
 ```bash
-TARGET=http://<mac-ip>:8088 ./attack.sh                              # core phases
-TARGET=http://<mac-ip>:8088 ./attack.sh --wordlist <path> --brute   # full
+# Mac-native (Option A): target localhost, point at the SecLists wordlist
+TARGET=http://localhost:8081 ./attack.sh --wordlist ~/tools/SecLists/Discovery/Web-Content/common.txt
+TARGET=http://localhost:8081 ./attack.sh --wordlist ~/tools/SecLists/Discovery/Web-Content/common.txt --brute
+
+# Kali (Option B): target the Mac's IP; tooling/wordlists are pre-installed
+TARGET=http://<mac-ip>:8081 ./attack.sh
+TARGET=http://<mac-ip>:8081 ./attack.sh --brute
 ```
 
 Want to learn the methodology by hand (hints, not solutions)? → [LEARNING.md](LEARNING.md).
