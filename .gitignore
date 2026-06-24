@@ -3,3 +3,6 @@
 # raw capture/scan artifacts — keep curated evidence in writeups/assets/ instead
 nmap-*.txt
 *.pcap
+# evidence: keep raw downloads + full logs local; commit only curated reports
+evidence/files/
+evidence/*.log
