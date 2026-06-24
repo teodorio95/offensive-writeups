@@ -67,7 +67,16 @@ detection #5) — plus the defense-in-depth layering.
 |---|-------|-------|-------|
 | [01](writeups/01-recon-nmap.md) | Recon & service discovery | Reconnaissance | nmap |
 | [02](writeups/02-sqli-login-bypass.md) | SQL injection — login bypass | A03 Injection | Burp, sqlmap |
+| [03](writeups/03-jwt-forgery.md) | JWT forgery — auth bypass | A07 Auth failures | Burp, jwt_tool |
+| [04](writeups/04-nosql-injection.md) | NoSQL injection — query manipulation | A03 Injection | Burp, curl |
+| [05](writeups/05-persistent-xss.md) | Persistent (stored) XSS via API | A03 Injection (XSS) | Burp |
 
-`attack.sh` + [defenses.md](defenses.md) also cover XSS (A03), broken access
-control (A01), and brute force (A07); each can grow into its own full writeup as
-evidence is captured. See [TEMPLATE.md](TEMPLATE.md) for the structure.
+Each follows [TEMPLATE.md](TEMPLATE.md) and ends with remediation. `attack.sh`
+also probes brute force (A07) and sensitive-file exposure (A01); see
+[defenses.md](defenses.md) for the full attack→defense map.
+
+## Confirming a solve (Juice Shop score board)
+Juice Shop is a gamified CTF: each exploit is a **challenge**. Find the hidden
+**Score Board** first (`/#/score-board`) — solving any challenge pops a toast and
+marks it ✓ there (also queryable at `/api/Challenges`). Screenshot the solved
+challenge as evidence. Full walkthroughs: <https://pwning.owasp-juice.shop>.
