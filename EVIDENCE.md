@@ -1,8 +1,41 @@
 # Evidence capture checklist
 
-Turn the writeups from scaffold into proof. Run the attacks from Kali against the
-lab, capture each screenshot into `writeups/assets/`, and the `_evidence:_`
-placeholders in the writeups will resolve.
+Turn the writeups from scaffold into proof. Most of it is **automated**; only a
+couple of *visual* things need a screenshot.
+
+## Automated (recommended) — `evidence.sh`
+```bash
+TARGET=http://<mac-ip>:8088 ./evidence.sh
+```
+Produces (see [evidence/](evidence/)):
+- **`evidence/solved-challenges.md`** — committed proof: which challenges are
+  solved, straight from `/api/Challenges` (the gamified confirmation as a table).
+- `evidence/files/` + `evidence/attack-<ts>.log` — raw artifacts/log, kept local.
+
+That alone proves which attacks landed. Screenshots below are just for polish.
+
+## Manual screenshots (visual only)
+Take them on Kali (`xfce4-screenshooter`, `flameshot gui`, or `scrot`), save into
+`writeups/assets/`:
+- `assets/03-xss.png` — the XSS payload *executing* in the browser (can't be shown in text)
+- `assets/score-board.png` — the Score Board with green ✓ marks
+- `assets/hubble-l7.png` — the same attack seen in Hubble on the Mac (`make hubble-ui`)
+
+## Getting evidence into the repo (+ GitHub mirror)
+The repo is public — clone it on Kali and work there:
+```bash
+git clone https://gitlab.com/teodorio95/offensive-writeups.git
+cd offensive-writeups
+TARGET=http://<mac-ip>:8088 ./evidence.sh      # generates evidence/
+# add screenshots to writeups/assets/, then:
+git add evidence/solved-challenges.md writeups/assets/ && git commit -m "evidence" && git push
+```
+(Needs git auth on Kali — a token or SSH key. Alternatively `scp` the files to the
+Mac clone and commit there.)
+
+---
+
+### Older manual checklist (optional, the `_evidence:_` placeholders)
 
 ## Setup (once)
 - [ ] Lab up on the Mac: `cd secure-k8s-lab && make up` (Juice Shop on `:8081`)
