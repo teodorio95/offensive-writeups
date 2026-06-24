@@ -44,15 +44,18 @@ matters for a DevSecOps role:
 
 ## Run the attacks
 
-[`attack.sh`](attack.sh) launches several attack types in sequence (recon, content
-discovery, SQLi auth-bypass, XSS, broken access control, optional brute force):
+[`attack.sh`](attack.sh) is **discovery-driven** — it *finds* paths/files by
+fuzzing + parsing directory listings and *detects* flaws by anomaly (it doesn't
+hard-code the answers). Phases: recon → content discovery (ffuf) → enumerate
+browsable dirs → fuzz 403 bypasses → injection by anomaly → optional brute force.
 
 ```bash
-TARGET=http://<mac-ip>:8081 ./attack.sh            # core phases
-TARGET=http://<mac-ip>:8081 ./attack.sh --brute    # + credential brute force
+TARGET=http://<mac-ip>:8088 ./attack.sh                              # core phases
+TARGET=http://<mac-ip>:8088 ./attack.sh --wordlist <path> --brute   # full
 ```
 
-Capture the output per [EVIDENCE.md](EVIDENCE.md) into `writeups/assets/`.
+Want to learn the methodology by hand (hints, not solutions)? → [LEARNING.md](LEARNING.md).
+Capture reproducible proof with [`evidence.sh`](evidence.sh) → [EVIDENCE.md](EVIDENCE.md).
 
 ## How we defend against each attack
 
